@@ -13,32 +13,34 @@ import {
     OutlinedInput,
     Typography,
   } from "@mui/material";
-  import React, {  useEffect, useState } from "react";
+  import React, {  useState } from "react";
   import { MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
+  import {BsFillPersonFill } from "react-icons/bs";
+
   import { CgMail } from "react-icons/cg";
   import { useForm } from "react-hook-form";
   import { Router } from "react-router";
   import { useNavigate } from "react-router-dom";
-  import jwt_decode from 'jwt-decode';
-  function SignIn(props) {
+  function Signup(props) {
     const history = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [Password, setPassword] = useState("");
+    const [showPassword2, setShowPassword2] = useState(false);
+    const [Password2, setPassword2] = useState("");
     const [Email, setEmail] = useState("");
+    const [Name, setName] = useState("");
+
     const [check, setcheck] = useState(false);
     const [errorMessage,setErrorMessage]=useState('');
     const submitHandler3 = async () => {
       console.log(Email, Password, "iomkl");
-      const response = await fetch("http://localhost:8080/api/users/signin", {
+      const response = await fetch("http://localhost:8080/api/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({  email: Email, password: Password }),
+        body: JSON.stringify({  fullName:Name,email: Email, password: Password }),
       });
       const data = await response.json();
-      const decodedToken = jwt_decode(data.token);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userid', decodedToken._id);
-      data?.token ? history("/home") : "";
+      data?.response=='200' ? history("/") : "";
       console.log(data.token,'dude the token is still thier')
       if (response.status != 200) 
       {setcheck(true);
@@ -54,11 +56,7 @@ import {
       handleSubmit,
       formState: { errors },
     } = useForm();
-useEffect(()=>{
-    if(localStorage.getItem('token')){
-        history('/home')
-    }
-})
+
   
     return (
       <form onSubmit={ handleSubmit(submitHandler3)}>
@@ -76,7 +74,7 @@ useEffect(()=>{
           <Typography
             sx={{ textAlign: "center", fontSize: "45px", fontWeight: "600" }}
           >
-            Sign In 
+            Sign In with your AMntegrity account.
           </Typography>
         </Grid>
         <Grid item xs={5}>
@@ -86,6 +84,79 @@ useEffect(()=>{
                 {errorMessage}
               </Alert>
             )}
+             <Grid item xs={12} sx={{ position: "relative" }}>
+              <FormControl
+              className="pr"
+            autoComplete='off'
+                sx={{
+                  "& .css-19dufz4-MuiInputBase-root-MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-notchedOutline":
+                    { borderColor: "#4267B2 !important", borderRadius: "10px" },
+                  "& .Mui-focused": { color: "#4267B2 !important" },
+                  "& .MuiFormControl-root":{width:'-webkit-fill-available'},
+                  ':has(input:-internal-autofill-selected)':{
+  background:'#e8f0fe',borderRadius:'9px',
+                  },
+                  m: 1,
+                  ml:0,
+                  "& .MuiOutlinedInput-notchedOutline legend ": {
+                    ml: "2rem",
+                    backgroundColor: "red",
+                    color: "red",
+                  },
+                }}
+                fullWidth
+                variant="outlined"
+              >
+                <InputLabel
+                  sx={{ pl: "2.5rem" }}
+                  htmlFor="outlined-adornment-password"
+                >
+                 Name
+                </InputLabel>
+                <OutlinedInput
+                  sx={{ pl: "2.7rem" }}
+                  type={"text"}
+                  label="Name"
+              autoComplete="off"
+             
+                  value={Name || ''}
+                  {...register('Name', {
+                    required: 'Name is required',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]/i,
+                      message: 'Enter a name',
+                    },
+                  })}
+                
+                  error={!!errors.Name}
+                  helperText={errors.Name?.message}
+                  onInput={(e) => {
+                    setName(e.target.value);
+                  
+                    
+                  }}
+                
+                />
+                {/* <MdVisibilityOff /> */}
+              </FormControl>
+              {errors.Name && <Grid ><Typography sx={{ml:'.8rem',color:'#d33943',fontWeight:'400'}}>{errors.Name.message}</Typography></Grid>}
+              <Grid
+                item
+             
+                sx={{
+                  padding: ".5rem",
+                  backgroundColor: "rgba(10,81,105,.2)",
+                  borderRadius: "8px",
+                  display: "flex",
+                  width: "max-content",
+                  position: "absolute",
+                  top: "20px",
+                  left: "20px",
+                }}
+              >
+                <BsFillPersonFill style={{ color: "#4267B2" }} />
+              </Grid>
+            </Grid>
             <Grid item xs={12} sx={{ position: "relative" }}>
               <FormControl
               className="pr"
@@ -116,7 +187,7 @@ useEffect(()=>{
                   Emails
                 </InputLabel>
                 <OutlinedInput
-                  sx={{ pl: "2.5rem" }}
+                  sx={{ pl: "2.7rem" }}
                   type={"email"}
                   label="Email"
               autoComplete="off"
@@ -192,7 +263,7 @@ useEffect(()=>{
                 </InputLabel>
                 <OutlinedInput
                  className="input2"
-                  sx={{ pl: "2.5rem" }}
+                  sx={{ pl: "2.7rem" }}
                   onFocus={()=>{setPassword(Password)}}
                   {...register('password', { 
                     required: 'password is required', 
@@ -224,7 +295,7 @@ useEffect(()=>{
                   }
                   label="Password"
                 />
-                            {errors.password && <Grid ><Typography sx={{ml:'.8rem',color:'#d33943',fontWeight:'400'}}>{errors.password.message}</Typography></Grid>}
+                            {errors.password && <Grid ><Typography sx={{ml:'.8rem',color:'#d33943',fontWeight:'400'}}>enter valid password</Typography></Grid>}
   
                 {/* <MdVisibilityOff /> */}
               </FormControl>
@@ -244,7 +315,8 @@ useEffect(()=>{
                 <MdLock style={{ color: "#4267B2" }} />
               </Grid>
             </Grid>
-         
+       
+  
             <Grid item xs={12} sx={{ textAlign: "center" }}>
               <Button
               type="submit"
@@ -267,44 +339,11 @@ useEffect(()=>{
                   },
                 }}
               >
-                Sign In{" "}
+                Sign Up{" "}
               </Button>
             </Grid>
   
-            <Grid item xs={12} sx={{ mt: "1rem" }}>
-              <Grid container sx={{ alignItems: "center" }}>
-               
-               
-                <Grid
-                  item
-                  xs={12}
-                  sx={{ height: "1px", background: "#00000080" }}
-                ></Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", mt: "2rem" }}>
-              <Button
-                href="/signup"
-                sx={{
-                  backgroundColor: "transparent",
-                  color: "#4267B2",
-                  fontFamily: "Raleway",
-                  fontSize: "18px",
-                  pl: ".5rem",
-                  pr: ".5rem",
-                  fontWeight: "400",
-                  border: "1px solid #4267B2",
-                  borderRadius: "25px",
-                  pt: ".5rem",
-                  pb: ".5rem",
-                  textAlign: "center",
-                  minWidth: "44%",
-                  ":hover": { backgroundColor: "#4267B2", color: "white" },
-                }}
-              >
-                Create Account{" "}
-              </Button>
-            </Grid>
+           
           </Grid>
         </Grid>
       </Grid>
@@ -312,4 +351,4 @@ useEffect(()=>{
     );
   }
   
-  export default SignIn;
+  export default Signup;
